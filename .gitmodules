@@ -1,6 +1,6 @@
-[submodule "components/wrapper"]
-	path = components/wrapper
-	url = https://github.com/lagomist/idf_wrapper.git
 [submodule "components/lvgl"]
 	path = components/lvgl
 	url = https://github.com/lvgl/lvgl.git
+[submodule "components/wrapper"]
+	path = components/wrapper
+	url = https://github.com/lagomist/idf_wrapper.git
