@@ -31,4 +31,7 @@ constexpr uint8_t I2C_HOST      = 0;
 constexpr int I2C_SDA_PIN       = 47;
 constexpr int I2C_SCL_PIN       = 48;
 
+/* LED */
+constexpr int LED_GREEN_PIN     = 3;
+
 }

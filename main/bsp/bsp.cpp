@@ -41,10 +41,17 @@ int BSP::buttonInit() {
     return 0;
 }
 
+int BSP::ledInit() {
+    led = new Wrapper::GPO(hwdef::LED_GREEN_PIN, 1);
+    ESP_LOGI(TAG, "led inited");
+    return 0;
+}
+
 int BSP::init() {
     Wrapper::SPI::init(hwdef::EPD_SPI_HOST, hwdef::EPD_MOSI_PIN, -1, hwdef::EPD_SCK_PIN, true, hwdef::EPD_WIDTH * hwdef::EPD_HEIGHT);
     Wrapper::I2C::init(hwdef::I2C_HOST, hwdef::I2C_SDA_PIN, hwdef::I2C_SCL_PIN);
     boardPowerInit();
+    ledInit();
     buttonInit();
     ePaperDisplayInit();
     return 0;
