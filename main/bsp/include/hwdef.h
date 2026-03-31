@@ -8,7 +8,7 @@ namespace hwdef {
 /* EPD port */
 constexpr int EPD_WIDTH         = 200;
 constexpr int EPD_HEIGHT        = 200;
-constexpr uint8_t EPD_SPI_HOST  = 2;
+constexpr uint8_t EPD_SPI_HOST  = 1;
 
 constexpr int EPD_DC_PIN        = 10;
 constexpr int EPD_CS_PIN        = 11;

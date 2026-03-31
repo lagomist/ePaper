@@ -1,7 +1,7 @@
 #include "epaper.h"
 #include "os_wrapper.h"
 #include "esp_log.h"
-#include "esp_heap_caps.h" 
+#include "esp_heap_caps.h"
 
 constexpr static const char TAG[] = "epaper";
 
@@ -50,13 +50,13 @@ constexpr static unsigned char WF_PARTIAL_1IN54_0[159] =
     0x02,0x17,0x41,0xB0,0x32,0x28,
 };
 
-EPaperDisplay::EPaperDisplay(int width, int height,SpiConfig cfg) : 
+EPaperDisplay::EPaperDisplay(int width, int height, SpiConfig cfg) : 
     _width(width), _height(height),
     _buffer_len(_width * _height / 8),
     _rst(cfg.rst), _dc(cfg.dc), _busy(cfg.busy),
     _bus(cfg.spi_host) {
 	
-	_bus.init(40, cfg.cs, 0);
+	_bus.init(40, cfg.cs, 0, 0);
     _buffer = (uint8_t *)heap_caps_malloc(_buffer_len, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
 	assert(_buffer);
 
@@ -81,18 +81,14 @@ void EPaperDisplay::wait_busy() {
 }
 
 
-void EPaperDisplay::sendCommand(const uint8_t command, const uint8_t buffer[], size_t len) {
+void EPaperDisplay::sendCmdData(const uint8_t command, const uint8_t buffer[], size_t len) {
 	_dc.set(0);
 	_bus.trans(&command, 1, nullptr, 0);
-	_dc.set(1);
 	if (buffer == nullptr || len == 0) return;
+	_dc.set(1);
 	_bus.trans(buffer, len, nullptr, 0);
 }
 
-void EPaperDisplay::writeBytes(const uint8_t buffer[], size_t len) {
-	_dc.set(1);
-	_bus.trans(buffer, len, nullptr, 0);
-}
 
 
 void EPaperDisplay::setWindows(uint16_t Xstart, uint16_t Ystart, uint16_t Xend, uint16_t Yend) {
@@ -100,49 +96,49 @@ void EPaperDisplay::setWindows(uint16_t Xstart, uint16_t Ystart, uint16_t Xend, 
 	// SET_RAM_X_ADDRESS_START_END_POSITION
 	buf[0] = (Xstart>>3) & 0xFF;
 	buf[1] = (Xend>>3) & 0xFF;
-    sendCommand(0x44, buf, 2);  
+    sendCmdData(0x44, buf, 2);
 	
 	// SET_RAM_Y_ADDRESS_START_END_POSITION
 	buf[0] = Ystart & 0xFF;
 	buf[1] = (Ystart >> 8) & 0xFF;
 	buf[2] = Yend & 0xFF;
 	buf[3] = (Yend >> 8) & 0xFF;
-    sendCommand(0x45, buf, 4);  
+    sendCmdData(0x45, buf, 4);  
 }
 
 void EPaperDisplay::setCursor(uint16_t Xstart, uint16_t Ystart) {
 	uint8_t buf[2] = {0};
 	 // SET_RAM_X_ADDRESS_COUNTER
-	buf[0] = Ystart & 0xFF;
-    sendCommand(0x4E, buf, 1);
+	buf[0] = Xstart & 0xFF;
+    sendCmdData(0x4E, buf, 1);
 
 	// SET_RAM_Y_ADDRESS_COUNTER
 	buf[0] = Ystart & 0xFF;
 	buf[1] = (Ystart >> 8) & 0xFF;
-    sendCommand(0x4F, buf, 2); 
+    sendCmdData(0x4F, buf, 2); 
 }
 
 void EPaperDisplay::setLut(const uint8_t *lut) {
-	sendCommand(0x32, lut, 153);
+	sendCmdData(0x32, lut, 153);
 	wait_busy();
 	
-    sendCommand(0x3f, &lut[153], 1);
-    sendCommand(0x03, &lut[154], 1);
-    sendCommand(0x04, &lut[155], 3);
-	sendCommand(0x2c, &lut[158], 1);
+    sendCmdData(0x3f, &lut[153], 1);
+    sendCmdData(0x03, &lut[154], 1);
+    sendCmdData(0x04, &lut[155], 3);
+	sendCmdData(0x2c, &lut[158], 1);
 }
 
 void EPaperDisplay::turnOnDisplay() {
     uint8_t buf[1] = {0xc7};
-    sendCommand(0x22, buf, 1);
-	sendCommand(0x20, nullptr, 0);
+    sendCmdData(0x22, buf, 1);
+	sendCmdData(0x20, nullptr, 0);
     wait_busy();
 }
 
 void EPaperDisplay::turnOnDisplayPart() {
     uint8_t buf[1] = {0xcf};
-    sendCommand(0x22, buf, 1);
-	sendCommand(0x20, nullptr, 0);
+    sendCmdData(0x22, buf, 1);
+	sendCmdData(0x20, nullptr, 0);
     wait_busy();
 }
 
@@ -156,27 +152,28 @@ void EPaperDisplay::init() {
     wait_busy();
 	
     const init_cmd_t init_cmds[] = {
-        {0x12, {0}, 0x01},                  // SWRESET
+        {0x12, {0}, 0x80},                  // SWRESET
         {0x01, {0xC7, 0x00, 0x01}, 0x03},   // Driver output control
         {0x11, {0x01}, 0x01},               // data entry mode
         {0x3C, {0x01}, 0x01},               // BorderWavefrom
         {0x18, {0x80}, 0x01},
-        {0x22, {0XB1, 0x20}, 0x02},         // Load Temperature and waveform setting.
+        {0x22, {0XB1}, 0x01},         // Load Temperature and waveform setting.
+        {0x20, {0}, 0x00},
         {0x00, {0}, 0xFF},
     };
 
     // Send all the commands
     uint8_t cmd = 0;
     while (init_cmds[cmd].databytes != 0xff) {
-        sendCommand(init_cmds[cmd].cmd, init_cmds[cmd].data, init_cmds[cmd].databytes & 0x1F);
+        sendCmdData(init_cmds[cmd].cmd, init_cmds[cmd].data, init_cmds[cmd].databytes & 0x1F);
         if (init_cmds[cmd].databytes & 0x80) {
             wait_busy();
         }
         cmd++;
     }
 
-	setWindows(0, _width-1, _height-1, 0);
-    setCursor(0, _height-1);
+	setWindows(0, _width - 1, _height - 1, 0);
+    setCursor(0, _height - 1);
 	wait_busy();
 	
 	setLut(WF_Full_1IN54);
@@ -187,13 +184,13 @@ void EPaperDisplay::clear() {
 }
 
 void EPaperDisplay::display() {
-    sendCommand(0x24, _buffer, _buffer_len);
+    sendCmdData(0x24, _buffer, _buffer_len);
     turnOnDisplay();
 }
 
 void EPaperDisplay::displayPartBaseImage() {
-    sendCommand(0x24, _buffer, _buffer_len);
-    sendCommand(0x26, _buffer, _buffer_len);
+    sendCmdData(0x24, _buffer, _buffer_len);
+    sendCmdData(0x26, _buffer, _buffer_len);
     turnOnDisplay();
 }
 
@@ -211,23 +208,25 @@ void EPaperDisplay::initPartial() {
     const init_cmd_t init_cmds[] = {
         {0x37, {0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0x00, 0x00, 0x00, 0x00}, 0x0A},
         {0x3C, {0x80}, 0x01},
-        {0x22, {0xc0, 0x20}, 0x82},
+        {0x22, {0xc0}, 0x01},
+        {0x20, {0}, 0x80},
         {0x00, {0}, 0xFF},
     };
 
     // Send all the commands
     uint8_t cmd = 0;
     while (init_cmds[cmd].databytes != 0xff) {
-        sendCommand(init_cmds[cmd].cmd, init_cmds[cmd].data, init_cmds[cmd].databytes & 0x1F);
+        sendCmdData(init_cmds[cmd].cmd, init_cmds[cmd].data, init_cmds[cmd].databytes & 0x1F);
         if (init_cmds[cmd].databytes & 0x80) {
             wait_busy();
         }
         cmd++;
     }
+    ESP_LOGI(TAG, "partial init");
 }
 
 void EPaperDisplay::displayPart() {
-    sendCommand(0x24, _buffer, _width * _height / 8);
+    sendCmdData(0x24, _buffer, _buffer_len);
     turnOnDisplayPart();
 }
 

@@ -1,4 +1,4 @@
-#include "button_monitor.h"
+#include "button_handler.h"
 #include "bsp.h"
 #include "esp_log.h"
 
@@ -61,6 +61,10 @@ void ButtonMonitor::btnEventHandler(void *arg) {
         }
         if (evt & ButtonMonitor::POWER_LONG_PRESS) {
             ESP_LOGI(TAG, "Power button long press");
+            Wrapper::OS::delay(500);
+            bsp.power->epdPowerOff();
+            bsp.power->audioPowerOff();
+            bsp.power->vbatPowerOff();
         }
         Wrapper::OS::delay(100);
     }
@@ -69,6 +73,7 @@ void ButtonMonitor::btnEventHandler(void *arg) {
 
 
 void ButtonMonitor::init() {
+    ESP_LOGI(TAG, "init");
     bsp.powerButton->addEvent(MultiButton::Event::SingleClick, [this](MultiButton &btn) {
         this->powerBtnHandler(btn);
     });

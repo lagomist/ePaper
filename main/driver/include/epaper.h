@@ -9,9 +9,8 @@ class EPaperDisplay {
 public:
     /* Display color */
     enum ColorImage {
-        DRIVER_COLOR_WHITE  = 0xff,
-        DRIVER_COLOR_BLACK  = 0x00,
-        FONT_BACKGROUND = DRIVER_COLOR_WHITE,
+        DRIVER_COLOR_WHITE  = 0x00,
+        DRIVER_COLOR_BLACK  = 0x01
     };
     struct SpiConfig {
         int cs;
@@ -41,8 +40,7 @@ private:
         uint8_t data[16];
         uint8_t databytes; // No of data in data; bit 7 = delay after set; 0xFF = end of cmds.
     };
-    void sendCommand(const uint8_t command, const uint8_t buffer[], size_t len);
-    void writeBytes(const uint8_t buffer[], size_t len);
+    void sendCmdData(const uint8_t command, const uint8_t buffer[], size_t len);
     void wait_busy();
 
     void setWindows(uint16_t Xstart, uint16_t Ystart, uint16_t Xend, uint16_t Yend);

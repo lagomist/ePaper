@@ -5,9 +5,9 @@ std::vector<MultiButton *> MultiButton::s_btns;
 
 MultiButton::MultiButton(Wrapper::GPIBase &gpio, uint8_t active_level, uint16_t short_ticks, uint16_t long_ticks)
     : m_gpio(gpio), m_active_level(active_level),
-      m_long_ticks(long_ticks), m_short_ticks(short_ticks),
-      m_state(State::IDLE), m_ticks(0), m_debounce_cnt(0), m_event(Event::None)
+      m_long_ticks(long_ticks), m_short_ticks(short_ticks)
 {
+	reset();
     is_enable = true;
     addToGlobal(this);
 }
@@ -29,6 +29,7 @@ void MultiButton::reset() {
     m_ticks = 0;
     m_debounce_cnt = 0;
     m_event = Event::None;
+	m_button_level = !m_active_level;
 }
 
 void MultiButton::addEvent(Event evt, Callback cb) {
