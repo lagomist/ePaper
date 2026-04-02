@@ -1,5 +1,6 @@
 #include "button_handler.h"
 #include "bsp.h"
+#include "led_heartbeat.h"
 #include "esp_log.h"
 
 constexpr static const char *TAG = "ButtonMonitor";
@@ -62,6 +63,7 @@ void ButtonMonitor::btnEventHandler(void *arg) {
         if (evt & ButtonMonitor::POWER_LONG_PRESS) {
             ESP_LOGI(TAG, "Power button long press");
             Wrapper::OS::delay(500);
+            ledHeartbeat.stop();
             bsp.power->epdPowerOff();
             bsp.power->audioPowerOff();
             bsp.power->vbatPowerOff();

@@ -23,6 +23,32 @@ int BSP::ePaperDisplayInit() {
     return 0;
 }
 
+int BSP::audioInit() {
+    audio = new BoardAudio();
+    // in_out: {codec: ES8311, pa: 46, use_mclk: 1, pa_gain:6}
+    BoardAudio::I2cConfig i2c_cfg = {};
+    i2c_cfg.port = hwdef::AUDIO_I2C_HOST;
+    i2c_cfg.scl = hwdef::AUDIO_I2C_SCL;
+    i2c_cfg.sda = hwdef::AUDIO_I2C_SDA;
+    BoardAudio::I2sConfig i2s_cfg = {};
+    i2s_cfg.mclk = hwdef::AUDIO_I2S_MCLK;
+    i2s_cfg.bclk = hwdef::AUDIO_I2S_BCLK;
+    i2s_cfg.ws = hwdef::AUDIO_I2S_WS;
+    i2s_cfg.dout = hwdef::AUDIO_I2S_DOUT;
+    i2s_cfg.din = hwdef::AUDIO_I2S_DIN;
+    i2s_cfg.port = hwdef::AUDIO_I2S_PORT;
+    BoardAudio::CodecCfg codec_cfg = {};
+    codec_cfg.mode = BoardAudio::I2sMode::CODEC_STD;
+    codec_cfg.pa_gain = 6;
+    codec_cfg.pa_pin = hwdef::AUDIO_PA_PIN;
+    codec_cfg.use_mclk = true;
+
+    audio->init(i2c_cfg, i2s_cfg, codec_cfg);
+    audio->playerInit();
+    ESP_LOGI(TAG, "audio inited");
+    return 0;
+}
+
 int BSP::boardPowerInit() {
     power = new BoardPower(hwdef::EPD_PWR_PIN, hwdef::AUDIO_PWR_PIN, hwdef::VBAT_PWR_PIN);
     power->epdPowerOn();
@@ -54,6 +80,7 @@ int BSP::init() {
     ledInit();
     buttonInit();
     ePaperDisplayInit();
+    audioInit();
     return 0;
 }
 

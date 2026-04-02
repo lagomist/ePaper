@@ -34,4 +34,18 @@ constexpr int I2C_SCL_PIN       = 48;
 /* LED */
 constexpr int LED_GREEN_PIN     = 3;
 
+/* Audio*/
+constexpr int AUDIO_PA_PIN          = 46;
+
+constexpr uint8_t AUDIO_I2C_HOST    = I2C_HOST;
+constexpr int AUDIO_I2C_SDA         = I2C_SDA_PIN;
+constexpr int AUDIO_I2C_SCL         = I2C_SCL_PIN;
+
+constexpr int AUDIO_I2S_PORT        = 2;
+constexpr int AUDIO_I2S_BCLK        = 15;
+constexpr int AUDIO_I2S_WS          = 38;
+constexpr int AUDIO_I2S_DOUT        = 45;
+constexpr int AUDIO_I2S_DIN         = 16;
+constexpr int AUDIO_I2S_MCLK        = 14;
+
 }

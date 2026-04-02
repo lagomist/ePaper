@@ -5,6 +5,7 @@
 #include "gpio_wrapper.h"
 #include "multi_button.h"
 #include "board_power.h"
+#include "board_audio.h"
 
 class BSP {
 public:
@@ -19,8 +20,10 @@ public:
     MultiButton *powerButton;
     MultiButton *bootButton;
     Wrapper::GPOBase *led;
+    BoardAudio *audio;
 private:
     int ePaperDisplayInit();
+    int audioInit();
     int boardPowerInit();
     int buttonInit();
     int ledInit();
