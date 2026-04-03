@@ -48,4 +48,12 @@ constexpr int AUDIO_I2S_DOUT        = 45;
 constexpr int AUDIO_I2S_DIN         = 16;
 constexpr int AUDIO_I2S_MCLK        = 14;
 
+/* Vbat ADC */
+constexpr uint8_t VBAT_ADC_CHANNEL  = 3;
+
+/* SD card */
+constexpr int SD_CARD_SCK_PIN    = 39;
+constexpr int SD_CARD_MOSI_PIN   = 41;
+constexpr int SD_CARD_MISO_PIN   = 40;
+
 }

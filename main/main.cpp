@@ -9,7 +9,7 @@
 
 extern "C" void app_main(void) {
     Wrapper::NVS::init("nvs");
-    Wrapper::FileSystem::mount();
+    Wrapper::FileSystem::Flash::mount();
     Wrapper::WiFi::netif_init();
     Wrapper::WiFi::Station::init();
 

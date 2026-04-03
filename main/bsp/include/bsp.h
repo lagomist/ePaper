@@ -6,6 +6,7 @@
 #include "multi_button.h"
 #include "board_power.h"
 #include "board_audio.h"
+#include "vbat_adc.h"
 
 class BSP {
 public:
@@ -21,12 +22,13 @@ public:
     MultiButton *bootButton;
     Wrapper::GPOBase *led;
     BoardAudio *audio;
+    VbatADC *vbat;
 private:
     int ePaperDisplayInit();
     int audioInit();
     int boardPowerInit();
     int buttonInit();
-    int ledInit();
+    int hardwareInit();
 };
 
 extern BSP bsp;
