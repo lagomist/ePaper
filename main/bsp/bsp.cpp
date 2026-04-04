@@ -71,6 +71,7 @@ int BSP::buttonInit() {
 int BSP::hardwareInit() {
     led = new Wrapper::GPO(hwdef::LED_GREEN_PIN, 1);
     tempHumi = new Shtc3(hwdef::I2C_HOST);
+    rtc = new BoardRTC(hwdef::I2C_HOST);
     vbat = new VbatADC(hwdef::VBAT_ADC_CHANNEL, 0);
     ESP_LOGI(TAG, "hardware inited");
     return 0;

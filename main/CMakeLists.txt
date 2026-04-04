@@ -14,6 +14,7 @@ list (APPEND src_list
     ${COMPONENT_DIR}/driver/vbat_adc.cpp
     ${COMPONENT_DIR}/bsp/board_power.cpp
     ${COMPONENT_DIR}/bsp/board_audio.cpp
+    ${COMPONENT_DIR}/bsp/board_rtc.cpp
     ${COMPONENT_DIR}/bsp/bsp.cpp
     ${COMPONENT_DIR}/monitor/led_heartbeat.cpp
     ${COMPONENT_DIR}/monitor/button_handler.cpp

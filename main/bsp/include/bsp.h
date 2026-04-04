@@ -6,6 +6,7 @@
 #include "multi_button.h"
 #include "board_power.h"
 #include "board_audio.h"
+#include "board_rtc.h"
 #include "vbat_adc.h"
 
 class BSP {
@@ -18,6 +19,7 @@ public:
     EPaperDisplay *display;
     BoardPower *power;
     Shtc3 *tempHumi;
+    BoardRTC *rtc;
     MultiButton *powerButton;
     MultiButton *bootButton;
     Wrapper::GPOBase *led;
