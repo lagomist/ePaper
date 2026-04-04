@@ -1,74 +1,204 @@
 #include "epaper_icon.h"
-#include "driver/epaper/epaper_driver_bsp.h"
 
-/* Sample 16x16 monochrome icons. These can be replaced with improved versions. */
-const uint8_t icon_sdcard_16x16[32] = {
+/* 16x16 monochrome icons in LVGL I1 format.
+ * Each icon: 16 rows x 2 bytes/row = 32 bytes bitmap.
+ * Default palette: index 0 = white, index 1 = black.
+ */
+
+static const uint8_t icon_sdcard_16x16_map[32] = {
     0x0E,0x00, 0x11,0x80, 0x20,0x40, 0x40,0x20,
     0x80,0x10, 0x90,0x10, 0x90,0x10, 0x90,0x10,
     0x90,0x10, 0x90,0x10, 0x90,0x10, 0x90,0x10,
     0x90,0x10, 0xA0,0x08, 0x40,0x20, 0x3F,0xC0
 };
 
-const uint8_t icon_power_16x16[32] = {
+static const uint8_t icon_power_16x16_map[32] = {
     0x00,0x00, 0x07,0xE0, 0x18,0x18, 0x20,0x04,
     0x40,0x02, 0x88,0x11, 0x90,0x09, 0xA0,0x05,
     0xA0,0x05, 0x90,0x09, 0x88,0x11, 0x40,0x02,
     0x20,0x04, 0x18,0x18, 0x07,0xE0, 0x00,0x00
 };
 
-const uint8_t icon_rtc_16x16[32] = {
+static const uint8_t icon_rtc_16x16_map[32] = {
     0x0F,0x80, 0x10,0x40, 0x20,0x20, 0x40,0x10,
     0x48,0x90, 0x49,0x10, 0x49,0x10, 0x49,0x10,
     0x40,0x10, 0x40,0x10, 0x20,0x20, 0x10,0x40,
     0x0F,0x80, 0x00,0x00, 0x00,0x00, 0x00,0x00
 };
 
-const uint8_t icon_shtc3_16x16[32] = {
+static const uint8_t icon_shtc3_16x16_map[32] = {
     0x01,0x00, 0x03,0x80, 0x07,0xC0, 0x0C,0x60,
     0x18,0x30, 0x30,0x18, 0x60,0x0C, 0xC0,0x06,
     0xC0,0x06, 0x60,0x0C, 0x30,0x18, 0x18,0x30,
     0x0C,0x60, 0x07,0xC0, 0x03,0x80, 0x01,0x00
 };
 
-const uint8_t icon_button_16x16[32] = {
+static const uint8_t icon_button_16x16_map[32] = {
     0x00,0x00, 0x07,0xE0, 0x0C,0x30, 0x18,0x18,
     0x30,0x0C, 0x20,0x04, 0x60,0x06, 0x60,0x06,
     0x60,0x06, 0x20,0x04, 0x30,0x0C, 0x18,0x18,
     0x0C,0x30, 0x07,0xE0, 0x00,0x00, 0x00,0x00
 };
 
-const uint8_t icon_led_16x16[32] = {
+static const uint8_t icon_led_16x16_map[32] = {
     0x04,0x40, 0x0C,0x60, 0x1C,0x70, 0x3C,0x78,
     0x38,0x38, 0x38,0x38, 0x30,0x18, 0x70,0x1C,
     0x70,0x1C, 0x30,0x18, 0x38,0x38, 0x38,0x38,
     0x3C,0x78, 0x1C,0x70, 0x0C,0x60, 0x04,0x40
 };
 
-const uint8_t icon_mic_16x16[32] = {
+static const uint8_t icon_mic_16x16_map[32] = {
     0x07,0xE0, 0x18,0x18, 0x20,0x04, 0x40,0x02,
     0x40,0x02, 0x40,0x02, 0x40,0x02, 0x20,0x04,
     0x18,0x18, 0x07,0xE0, 0x01,0x00, 0x07,0xE0,
     0x09,0x90, 0x09,0x90, 0x07,0xE0, 0x00,0x00
 };
 
-const uint8_t icon_mcu_16x16[32] = {
+static const uint8_t icon_mcu_16x16_map[32] = {
     0x07,0xE0, 0x08,0x10, 0x10,0x08, 0x20,0x04,
     0x23,0xC4, 0x24,0x24, 0x24,0x24, 0x23,0xC4,
     0x20,0x04, 0x10,0x08, 0x08,0x10, 0x07,0xE0,
     0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00
 };
 
-// Draws 16x16 icon, 1bpp, at top-left (x, y)
-void epaper_draw_icon16(int x, int y, const uint8_t icon[32]) {
-    for (int row = 0; row < 16; ++row) {
-        for (int col = 0; col < 16; ++col) {
-            int byte_idx = row * 2 + (col / 8);
-            int bit_idx = 7 - (col % 8);
-            if (icon[byte_idx] & (1 << bit_idx)) {
-                EPD_DrawColorPixel(x + col, y + row, 0);  // 0 = black pixel (per typical monochrome e-ink)
-            } else {
-                EPD_DrawColorPixel(x + col, y + row, 1);  // 1 = white pixel
-            }
-        }
-    }
-}
+static const uint8_t icon_wifi_16x16_map[32] = {
+    0x00,0x00, 0x00,0x00, 0x01,0x80, 0x03,0xC0,
+    0x06,0x60, 0x0C,0x30, 0x18,0x18, 0x30,0x0C,
+    0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00,
+    0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00
+};
+
+const lv_image_dsc_t icon_sdcard_16x16 = {
+    .header = {
+        .magic = LV_IMAGE_HEADER_MAGIC,
+        .cf = LV_COLOR_FORMAT_I1,
+        .flags = 0,
+        .w = 16,
+        .h = 16,
+        .stride = 2,
+        .reserved_2 = {0},
+    },
+    .data_size = sizeof(icon_sdcard_16x16_map),
+    .data = icon_sdcard_16x16_map,
+    .reserved = NULL,
+};
+
+const lv_image_dsc_t icon_power_16x16 = {
+    .header = {
+        .magic = LV_IMAGE_HEADER_MAGIC,
+        .cf = LV_COLOR_FORMAT_I1,
+        .flags = 0,
+        .w = 16,
+        .h = 16,
+        .stride = 2,
+        .reserved_2 = {0},
+    },
+    .data_size = sizeof(icon_power_16x16_map),
+    .data = icon_power_16x16_map,
+    .reserved = NULL,
+};
+
+const lv_image_dsc_t icon_rtc_16x16 = {
+    .header = {
+        .magic = LV_IMAGE_HEADER_MAGIC,
+        .cf = LV_COLOR_FORMAT_I1,
+        .flags = 0,
+        .w = 16,
+        .h = 16,
+        .stride = 2,
+        .reserved_2 = {0},
+    },
+    .data_size = sizeof(icon_rtc_16x16_map),
+    .data = icon_rtc_16x16_map,
+    .reserved = NULL,
+};
+
+const lv_image_dsc_t icon_shtc3_16x16 = {
+    .header = {
+        .magic = LV_IMAGE_HEADER_MAGIC,
+        .cf = LV_COLOR_FORMAT_I1,
+        .flags = 0,
+        .w = 16,
+        .h = 16,
+        .stride = 2,
+        .reserved_2 = {0},
+    },
+    .data_size = sizeof(icon_shtc3_16x16_map),
+    .data = icon_shtc3_16x16_map,
+    .reserved = NULL,
+};
+
+const lv_image_dsc_t icon_button_16x16 = {
+    .header = {
+        .magic = LV_IMAGE_HEADER_MAGIC,
+        .cf = LV_COLOR_FORMAT_I1,
+        .flags = 0,
+        .w = 16,
+        .h = 16,
+        .stride = 2,
+        .reserved_2 = {0},
+    },
+    .data_size = sizeof(icon_button_16x16_map),
+    .data = icon_button_16x16_map,
+    .reserved = NULL,
+};
+
+const lv_image_dsc_t icon_led_16x16 = {
+    .header = {
+        .magic = LV_IMAGE_HEADER_MAGIC,
+        .cf = LV_COLOR_FORMAT_I1,
+        .flags = 0,
+        .w = 16,
+        .h = 16,
+        .stride = 2,
+        .reserved_2 = {0},
+    },
+    .data_size = sizeof(icon_led_16x16_map),
+    .data = icon_led_16x16_map,
+    .reserved = NULL,
+};
+
+const lv_image_dsc_t icon_mic_16x16 = {
+    .header = {
+        .magic = LV_IMAGE_HEADER_MAGIC,
+        .cf = LV_COLOR_FORMAT_I1,
+        .flags = 0,
+        .w = 16,
+        .h = 16,
+        .stride = 2,
+        .reserved_2 = {0},
+    },
+    .data_size = sizeof(icon_mic_16x16_map),
+    .data = icon_mic_16x16_map,
+    .reserved = NULL,
+};
+
+const lv_image_dsc_t icon_mcu_16x16 = {
+    .header = {
+        .magic = LV_IMAGE_HEADER_MAGIC,
+        .cf = LV_COLOR_FORMAT_I1,
+        .flags = 0,
+        .w = 16,
+        .h = 16,
+        .stride = 2,
+        .reserved_2 = {0},
+    },
+    .data_size = sizeof(icon_mcu_16x16_map),
+    .data = icon_mcu_16x16_map,
+    .reserved = NULL,
+};
+
+const lv_image_dsc_t icon_wifi_16x16 = {
+    .header = {
+        .magic = LV_IMAGE_HEADER_MAGIC,
+        .cf = LV_COLOR_FORMAT_I1,
+        .flags = 0,
+        .w = 16,
+        .h = 16,
+        .stride = 2,
+        .reserved_2 = {0},
+    },
+    .data_size = sizeof(icon_wifi_16x16_map),
+    .data = icon_wifi_16x16_map,
+    .reserved = NULL,
+};

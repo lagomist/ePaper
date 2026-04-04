@@ -1,20 +1,28 @@
-#ifndef DASHBOARD_PAGE_H
-#define DASHBOARD_PAGE_H
+#pragma once
 
-#include <vector>
-#include "dashboard_widget.h"
+#include "lvgl.h"
+#include "dashboard_model.h"
 
 class DashboardPage {
 public:
-    // Takes ownership of widget pointers
-    DashboardPage(const std::vector<DashboardWidget*>& widgets);
+    DashboardPage();
     ~DashboardPage();
-    // Renders this page: 2x4 grid of icon+status text
-    void render(int x0, int y0, int cell_w, int cell_h) const;
-    int size() const { return m_widgets.size(); }
-    DashboardWidget* getWidget(int idx) const;
+
+    void create(lv_obj_t* parent);
+    void update();
+
 private:
-    std::vector<DashboardWidget*> m_widgets;
+    static void updateTimerCallback(lv_timer_t* timer);
+
+    lv_obj_t* m_root = nullptr;
+    lv_obj_t* m_date_label = nullptr;
+    lv_obj_t* m_temp_label = nullptr;
+    lv_obj_t* m_humi_label = nullptr;
+    lv_obj_t* m_batt_label = nullptr;
+    lv_obj_t* m_sd_label = nullptr;
+    lv_obj_t* m_wifi_label = nullptr;
+
+    lv_timer_t* m_update_timer = nullptr;
 };
 
-#endif // DASHBOARD_PAGE_H
+extern DashboardPage dashboardPage;
