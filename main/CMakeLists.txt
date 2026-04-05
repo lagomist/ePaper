@@ -18,6 +18,7 @@ list (APPEND src_list
     ${COMPONENT_DIR}/bsp/bsp.cpp
     ${COMPONENT_DIR}/monitor/led_heartbeat.cpp
     ${COMPONENT_DIR}/monitor/button_handler.cpp
+    ${COMPONENT_DIR}/monitor/time_sync.cpp
     ${COMPONENT_DIR}/ui/gui.cpp
     ${COMPONENT_DIR}/ui/dashboard_model.cpp
     ${COMPONENT_DIR}/ui/dashboard_page.cpp
