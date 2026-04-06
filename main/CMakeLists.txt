@@ -19,6 +19,7 @@ list (APPEND src_list
     ${COMPONENT_DIR}/monitor/led_heartbeat.cpp
     ${COMPONENT_DIR}/monitor/button_handler.cpp
     ${COMPONENT_DIR}/monitor/time_sync.cpp
+    ${COMPONENT_DIR}/monitor/music_player.cpp
     ${COMPONENT_DIR}/ui/gui.cpp
     ${COMPONENT_DIR}/ui/dashboard_model.cpp
     ${COMPONENT_DIR}/ui/dashboard_page.cpp
@@ -31,3 +32,6 @@ idf_component_register(
     INCLUDE_DIRS
     ${inc_list}
     )
+
+fatfs_create_spiflash_image(storage ${CMAKE_CURRENT_SOURCE_DIR}/storage FLASH_IN_PROJECT)
+

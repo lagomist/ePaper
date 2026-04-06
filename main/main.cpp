@@ -6,6 +6,7 @@
 #include "led_heartbeat.h"
 #include "gui.h"
 #include "time_sync.h"
+#include "music_player.h"
 
 
 extern "C" void app_main(void) {
@@ -22,4 +23,6 @@ extern "C" void app_main(void) {
     ledHeartbeat.init(*bsp.led);
     buttonMonitor.init();
     gui.init();
+    musicPlayer.init(bsp.audio);
+    musicPlayer.play(Wrapper::FileSystem::Flash::get_base_path() + "/music.pcm");
 }

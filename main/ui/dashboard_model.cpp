@@ -29,7 +29,7 @@ void DashboardModel::update() {
         m_status.rtc_time = std::string(buf);
     }
 
-    m_status.sd_mounted = (Wrapper::FileSystem::SdCard::get_base_path().length() > 0);
+    m_status.sd_mounted = Wrapper::FileSystem::SdCard::is_mounted();
 
     m_status.wifi_connected = Wrapper::WiFi::Station::is_connected();
     if (m_status.wifi_connected) {
